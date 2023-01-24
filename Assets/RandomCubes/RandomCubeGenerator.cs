@@ -86,7 +86,11 @@ public class RandomCubeGenerator : MonoBehaviour
         int vector3Size = sizeof(float) * 3;
         int totalSize = colorSize + vector3Size;
 
-        ComputeBuffer cubesBuffer = new ComputeBuffer(data.Length, totalSize);
+        GraphicsBuffer cubesBuffer = new GraphicsBuffer(
+            GraphicsBuffer.Target.Structured, 
+            data.Length, 
+            totalSize
+        );
         cubesBuffer.SetData(data);
         
         computeShader.SetBuffer(0, "cubes", cubesBuffer);
