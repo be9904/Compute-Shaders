@@ -5,7 +5,7 @@ using UnityEngine;
 public class SimpleNoiseGenerator : MonoBehaviour
 {
     [SerializeField] private ComputeShader computeShader;
-    [SerializeField] private RenderTexture renderTexture;
+    public RenderTexture renderTexture;
     
     // Start is called before the first frame update
     void Start()
@@ -15,6 +15,7 @@ public class SimpleNoiseGenerator : MonoBehaviour
         renderTexture.Create();
         
         computeShader.SetTexture(0, "Result", renderTexture);
+        computeShader.SetFloat("Resolution", renderTexture.width);
         computeShader.Dispatch(
             0, 
             renderTexture.width / 8, 

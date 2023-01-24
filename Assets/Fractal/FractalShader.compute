@@ -1,0 +1,179 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Mandelbrot set data
+struct FractalData
+{
+    float w, h, r, i;
+    int screenWidth, screenHeight;
+};
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+// Output from the shader to render texture from Unity
+RWTexture2D<float4> Result;
+
+// Reference to Graphics Buffer in Unity
+StructuredBuffer<FractalData> buffer;
+uint maxIterations;
+
+float4 SetColor(uint iterationCount)
+{
+	float4 color = float4(0,0,0,1);
+	
+    if(iterationCount != maxIterations)
+    {
+		int colorNr = iterationCount % 16;
+    	
+        switch (colorNr)
+		{
+			case 0:
+			{
+				color.x = 66.0f / 255.0f;
+				color.y = 30.0f / 255.0f;
+				color.z = 15.0f / 255.0f;
+				break;
+			}
+			case 1:
+			{
+				color.x = 25.0f / 255.0f;
+				color.y = 7.0f / 255.0f;
+				color.z = 26.0f / 255.0f;
+				break;
+			}
+			case 2:
+			{
+				color.x = 9.0f / 255.0f;
+				color.y = 1.0f / 255.0f;
+				color.z = 47.0f / 255.0f;
+				break;
+			}
+
+			case 3:
+			{
+				color.x = 4.0f / 255.0f;
+				color.y = 4.0f / 255.0f;
+				color.z = 73.0f / 255.0f;
+				break;
+			}
+			case 4:
+			{
+				color.x = 0.0f / 255.0f;
+				color.y = 7.0f / 255.0f;
+				color.z = 100.0f / 255.0f;
+				break;
+			}
+			case 5:
+			{
+				color.x = 12.0f / 255.0f;
+				color.y = 44.0f / 255.0f;
+				color.z = 138.0f / 255.0f;
+				break;
+			}
+			case 6:
+			{
+				color.x = 24.0f / 255.0f;
+				color.y = 82.0f / 255.0f;
+				color.z = 177.0f / 255.0f;
+				break;
+			}
+			case 7:
+			{
+				color.x = 57.0f / 255.0f;
+				color.y = 125.0f / 255.0f;
+				color.z= 209.0f / 255.0f;
+				break;
+			}
+			case 8:
+			{
+				color.x = 134.0f / 255.0f;
+				color.y = 181.0f / 255.0f;
+				color.z = 229.0f / 255.0f;
+				break;
+			}
+			case 9:
+			{
+				color.x = 211.0f / 255.0f;
+				color.y = 236.0f / 255.0f;
+				color.z = 248.0f / 255.0f;
+				break;
+			}
+			case 10:
+			{
+				color.x = 241.0f / 255.0f;
+				color.y = 233.0f / 255.0f;
+				color.z = 191.0f / 255.0f;
+				break;
+			}
+			case 11:
+			{
+				color.x = 248.0f / 255.0f;
+				color.y = 201.0f / 255.0f;
+				color.z = 95.0f / 255.0f;
+				break;
+			}
+			case 12:
+			{
+				color.x = 255.0f / 255.0f;
+				color.y = 170.0f / 255.0f;
+				color.z = 0.0f / 255.0f;
+				break;
+			}
+			case 13:
+			{
+				color.x = 204.0f / 255.0f;
+				color.y = 128.0f / 255.0f;
+				color.z = 0.0f / 255.0f;
+				break;
+			}
+			case 14:
+			{
+				color.x = 153.0f / 255.0f;
+				color.y = 87.0f / 255.0f;
+				color.z = 0.0f / 255.0f;
+				break;
+			}
+			case 15:
+			{
+				color.x = 106.0f / 255.0f;
+				color.y = 52.0f / 255.0f;
+				color.z = 3.0f / 255.0f;
+				break;
+			}
+        	default:
+        		break;
+		}
+    }
+
+	return color;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID) // id is a reference to the current thread used by the GPU
+{
+    float real, imag;
+    float real2, imag2;
+    float xOffset = id.x / buffer[0].screenWidth * buffer[0].w;
+    float yOffset = id.y / buffer[0].screenHeight * buffer[0].h;
+    uint iterationCount;
+
+    float4 color = float4(0, 0, 0, 1);
+
+    real = buffer[0].r + xOffset;
+    imag = buffer[0].i + yOffset;
+
+    for(uint i = 0 ; i < maxIterations ; i++)
+    {
+        real2 = real * real;
+        imag2 = imag * imag;
+
+        if(real2 + imag2 > 4) break;
+    	
+        imag = 2.0 * real * imag + buffer[0].i + yOffset;
+        real = real2 - imag2 + buffer[0].r + xOffset;
+        iterationCount++;
+    }
+    
+    // TODO: insert actual code here!
+    Result[id.xy] = SetColor(iterationCount);
+}
