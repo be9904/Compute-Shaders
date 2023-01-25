@@ -14,19 +14,30 @@ public class SimpleNoiseGenerator : MonoBehaviour
         renderTexture.enableRandomWrite = true;
         renderTexture.Create();
         
-        computeShader.SetTexture(0, "Result", renderTexture);
         computeShader.SetFloat("Resolution", renderTexture.width);
-        computeShader.Dispatch(
-            0, 
-            renderTexture.width / 8, 
-            renderTexture.height / 8, 
-            1
-        );
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnGUI()
     {
-        
+        if (GUI.Button(new Rect(25, 25, 100, 50), "Generate Noise"))
+        {
+            computeShader.SetTexture(0, "Result", renderTexture);
+            computeShader.Dispatch(
+                0, 
+                renderTexture.width / 8, 
+                renderTexture.height / 8, 
+                1
+            );
+        }
+        if (GUI.Button(new Rect(150, 25, 100, 50), "Show UV"))
+        {
+            computeShader.SetTexture(1, "Result", renderTexture);
+            computeShader.Dispatch(
+                1, 
+                renderTexture.width / 8, 
+                renderTexture.height / 8, 
+                1
+            );
+        }
     }
 }

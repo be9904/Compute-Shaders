@@ -1,4 +1,5 @@
 #pragma kernel NoiseKernel
+#pragma kernel UVKernel
 
 RWTexture2D<float4> Result;
 float Resolution;
@@ -27,7 +28,11 @@ void NoiseKernel(uint2 id : SV_DispatchThreadID)
     float w, h;
     Result.GetDimensions(w, h);
     Result[id.xy] = Random(id.x + id.y * w);
+}
 
+[numthreads(8, 8, 1)]
+void UVKernel(uint3 id : SV_DispatchThreadID)
+{
     float x = id.x / Resolution;
     float y = id.y / Resolution;
 
